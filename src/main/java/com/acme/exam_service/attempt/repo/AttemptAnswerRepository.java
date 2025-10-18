@@ -9,4 +9,7 @@ import java.util.Optional;
 public interface AttemptAnswerRepository extends JpaRepository<AttemptAnswer, Integer> {
     Optional<AttemptAnswer> findByAttempt_IdAndQuestion_Id(Integer attemptId, Integer questionId);
     List<AttemptAnswer> findByAttempt_Id(Integer attemptId);
+
+    long countByQuestion_Id(Integer questionId);
+    long countBySelectedAnswer_Id(Integer answerId);
 }

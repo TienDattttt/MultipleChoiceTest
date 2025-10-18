@@ -13,4 +13,8 @@ public interface AnswerRepository extends JpaRepository<Answer, Integer> {
     Optional<Integer> findQuestionIdByAnswerId(Integer answerId);
 
     List<Answer> findByQuestion_IdIn(Collection<Integer> questionIds);
+
+
+
+    void deleteByQuestion_Id(Integer questionId);
 }

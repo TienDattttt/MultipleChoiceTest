@@ -12,4 +12,6 @@ public interface AttemptRepository extends JpaRepository<Attempt, Integer> {
 
     @Query("select aa from AttemptAnswer aa where aa.attempt.id = :attemptId")
     List<com.acme.exam_service.attempt.entity.AttemptAnswer> findAnswersByAttemptId(Integer attemptId);
+
+    long countByExam_Id(Integer examId);
 }

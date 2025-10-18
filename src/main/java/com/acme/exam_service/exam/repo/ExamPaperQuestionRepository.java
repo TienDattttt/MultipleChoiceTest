@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface ExamPaperQuestionRepository extends JpaRepository<ExamPaperQuestion, Integer> {
     List<ExamPaperQuestion> findByPaper_IdOrderBySortOrderAsc(Integer paperId);
+    long countByQuestion_Id(Integer questionId);
 }
