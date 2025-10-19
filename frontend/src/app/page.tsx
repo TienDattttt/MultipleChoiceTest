@@ -1,29 +1,33 @@
-import HeroSection from '@/components/sections/hero-section';
-import AudienceCardsSection from '@/components/sections/audience-cards-section';
-import TrustedSchoolsSection from '@/components/sections/trusted-schools-section';
-import OnlineOfflineTestingSection from '@/components/sections/online-offline-testing-section';
-import QuestionBankSection from '@/components/sections/question-bank-section';
-import LmsSection from '@/components/sections/lms-section';
-import WhyChooseSection from '@/components/sections/why-choose-section';
-import StatisticsSection from '@/components/sections/statistics-section';
-import PartnersSection from '@/components/sections/partners-section';
-import AppDownloadSection from '@/components/sections/app-download-section';
-import FooterSection from '@/components/sections/footer-section';
+import Header from "@/components/sections/header";
+import HeroSection from "@/components/sections/hero";
+import TargetAudience from "@/components/sections/target-audience";
+import SchoolLogos from "@/components/sections/school-logos";
+import OnlineOfflineTesting from "@/components/sections/online-offline-testing";
+import QuestionBankSection from "@/components/sections/question-bank";
+import LmsFeatures from "@/components/sections/lms-features";
+import WhyChooseSection from "@/components/sections/why-choose";
+import StatisticsSection from "@/components/sections/statistics";
+import Partners from "@/components/sections/partners";
+import AppDownload from "@/components/sections/app-download";
+import Footer from "@/components/sections/footer";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <main className="min-h-screen">
-      <HeroSection />
-      <AudienceCardsSection />
-      <TrustedSchoolsSection />
-      <OnlineOfflineTestingSection />
-      <QuestionBankSection />
-      <LmsSection />
-      <WhyChooseSection />
-      <StatisticsSection />
-      <PartnersSection />
-      <AppDownloadSection />
-      <FooterSection />
-    </main>
+    <div className="min-h-screen bg-background">
+      <Header />
+      <main>
+        <HeroSection />
+        <TargetAudience />
+        <SchoolLogos />
+        <OnlineOfflineTesting />
+        <QuestionBankSection />
+        <LmsFeatures />
+        <WhyChooseSection />
+        <StatisticsSection />
+        <Partners />
+        <AppDownload />
+      </main>
+      <Footer />
+    </div>
   );
 }
