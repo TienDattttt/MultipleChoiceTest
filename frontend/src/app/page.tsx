@@ -8,7 +8,6 @@ import LmsFeatures from "@/components/sections/lms-features";
 import WhyChooseSection from "@/components/sections/why-choose";
 import StatisticsSection from "@/components/sections/statistics";
 import Partners from "@/components/sections/partners";
-import AppDownload from "@/components/sections/app-download";
 import Footer from "@/components/sections/footer";
 
 export default function HomePage() {
@@ -25,7 +24,6 @@ export default function HomePage() {
         <WhyChooseSection />
         <StatisticsSection />
         <Partners />
-        <AppDownload />
       </main>
       <Footer />
     </div>

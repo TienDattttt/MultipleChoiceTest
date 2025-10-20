@@ -102,14 +102,6 @@ const HeroSection = () => {
             </div>
 
             {/* CTAs */}
-            <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 pt-4">
-              <Link href="https://azota.vn/vi/auth/login" className="px-8 py-3 w-full sm:w-auto text-center bg-primary uppercase text-white rounded-full font-semibold shadow-md hover:shadow-lg hover:bg-blue-700 transform hover:-translate-y-0.5 transition-all duration-300 text-sm">
-                ĐĂNG NHẬP
-              </Link>
-              <Link href="https://azota.vn/vi/auth/register" className="px-8 py-3 w-full sm:w-auto text-center border-2 border-primary uppercase text-primary rounded-full font-semibold hover:bg-primary hover:text-white transform hover:-translate-y-0.5 transition-all duration-300 text-sm">
-                ĐĂNG KÝ
-              </Link>
-            </div>
           </div>
 
           {/* Right Content */}
