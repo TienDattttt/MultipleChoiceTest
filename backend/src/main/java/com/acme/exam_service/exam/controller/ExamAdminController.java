@@ -1,12 +1,19 @@
 package com.acme.exam_service.exam.controller;
 
+import com.acme.exam_service.attempt.entity.Attempt;
+import com.acme.exam_service.attempt.repo.AttemptRepository;
+import com.acme.exam_service.auth.service.SecurityUtils;
 import com.acme.exam_service.common.dto.ApiResponse;
 import com.acme.exam_service.exam.dto.*;
+import com.acme.exam_service.exam.repo.ExamRepository;
 import com.acme.exam_service.exam.service.ExamAdminService;
+import com.acme.exam_service.users.repo.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -16,22 +23,22 @@ import java.util.List;
 public class ExamAdminController {
 
     private final ExamAdminService service;
+    private final UserRepository userRepository;
+    private final ExamRepository examRepository;
+    private final AttemptRepository attemptRepo;
 
-    /* ========== GENERATE PAPERS (via SP) ========== */
+
     @PostMapping("/{examId}/papers:generate")
-    public ApiResponse<String> generate(
+    public ApiResponse<?> generate(
             @PathVariable int examId,
             @RequestParam(defaultValue = "2") int count,
             @RequestParam(defaultValue = "true") boolean replace) {
         service.generatePapers(examId, count, replace);
-        return new ApiResponse<>("OK");
+        return ApiResponse.ok("Generate success", "OK");
     }
 
-    /* ========== LIST / GET / CREATE / UPDATE / DELETE EXAM ========== */
-
-    // list: trả ExamListItem, có filter thời gian (tùy chọn)
     @GetMapping
-    public ApiResponse<Page<ExamListItem>> list(
+    public ApiResponse<?> list(
             @RequestParam(required = false) Integer courseId,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Instant fromTs,
@@ -39,61 +46,94 @@ public class ExamAdminController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size
     ) {
-        return new ApiResponse<>(service.list(courseId, keyword, fromTs, toTs, page, size));
+        return ApiResponse.ok(service.list(courseId, keyword, fromTs, toTs, page, size));
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<ExamResponse> get(@PathVariable Integer id) {
-        return new ApiResponse<>(service.get(id));
+    public ApiResponse<?> get(@PathVariable Integer id) {
+        return ApiResponse.ok(service.get(id));
     }
 
     @PostMapping
-    public ApiResponse<ExamResponse> create(@RequestBody ExamCreateRequest req) {
-        return new ApiResponse<>(service.create(req));
+    public ApiResponse<?> create(@RequestBody ExamCreateRequest req) {
+        return ApiResponse.ok("Exam created", service.create(req));
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<ExamResponse> update(@PathVariable Integer id, @RequestBody ExamUpdateRequest req) {
-        return new ApiResponse<>(service.update(id, req));
+    public ApiResponse<?> update(@PathVariable Integer id, @RequestBody ExamUpdateRequest req) {
+        return ApiResponse.ok("Exam updated", service.update(id, req));
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse<String> delete(@PathVariable Integer id) {
+    public ApiResponse<?> delete(@PathVariable Integer id) {
         service.delete(id);
-        return new ApiResponse<>("DELETED");
+        return ApiResponse.ok("Exam deleted", "DELETED");
     }
-
-    /* ========== ASSIGN / UNASSIGN CLASSES ========== */
 
     @PostMapping("/{examId}/assign")
-    public ApiResponse<String> assign(@PathVariable Integer examId, @RequestBody AssignClassesRequest req) {
+    public ApiResponse<?> assign(@PathVariable Integer examId, @RequestBody AssignClassesRequest req) {
         service.assignClasses(examId, req.classIds());
-        return new ApiResponse<>("ASSIGNED");
+        return ApiResponse.ok("Assigned", "ASSIGNED");
     }
 
-    // Trả về danh sách classId (service đang trả List<Integer>)
     @GetMapping("/{examId}/classes")
-    public ApiResponse<List<Integer>> listAssigned(@PathVariable Integer examId) {
-        return new ApiResponse<>(service.listAssignedClassIds(examId));
+    public ApiResponse<?> listAssigned(@PathVariable Integer examId) {
+        return ApiResponse.ok(service.listAssignedClassIds(examId));
     }
 
     @DeleteMapping("/{examId}/classes/{classId}")
-    public ApiResponse<String> unassign(@PathVariable Integer examId, @PathVariable Integer classId) {
+    public ApiResponse<?> unassign(@PathVariable Integer examId, @PathVariable Integer classId) {
         service.unassignClass(examId, classId);
-        return new ApiResponse<>("UNASSIGNED");
+        return ApiResponse.ok("Unassigned", "UNASSIGNED");
     }
 
-    /* ========== BLUEPRINT ========== */
-
     @GetMapping("/{id}/blueprint")
-    public ApiResponse<List<BlueprintItemDto>> getBlueprint(@PathVariable Integer id) {
-        return new ApiResponse<>(service.getBlueprint(id));
+    public ApiResponse<?> getBlueprint(@PathVariable Integer id) {
+        return ApiResponse.ok(service.getBlueprint(id));
     }
 
     @PutMapping("/{id}/blueprint")
-    public ApiResponse<String> saveBlueprint(@PathVariable Integer id,
-                                             @RequestBody SaveBlueprintRequest req) {
+    public ApiResponse<?> saveBlueprint(@PathVariable Integer id, @RequestBody SaveBlueprintRequest req) {
         service.saveBlueprint(id, req);
-        return new ApiResponse<>("SAVED");
+        return ApiResponse.ok("Blueprint saved", "SAVED");
     }
+
+    @GetMapping("/my")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ApiResponse<List<ExamListItem>> myExams() {
+        Integer uid = SecurityUtils.currentUserId();
+        var user = userRepository.findWithClasses(uid).orElseThrow();
+
+        var classes = user.getClasses();
+        if (classes == null || classes.isEmpty()) {
+            return ApiResponse.ok(List.of()); // student chưa thuộc lớp nào
+        }
+
+        Integer classId = classes.iterator().next().getId(); // lấy class đầu tiên
+        var exams = examRepository.findExamsAssignedToClass(classId);
+
+        List<ExamListItem> items = exams.stream()
+                .map( e -> {
+                    BigDecimal score = attemptRepo
+                            .findByExam_IdAndUser_Id(e.getId(), uid)
+                            .map(Attempt::getScore)
+                            .orElse(null);
+
+                    return new ExamListItem(
+                            e.getId(),
+                            e.getCourse().getId(),
+                            e.getTitle(),
+                            e.getStartAt(),
+                            e.getEndAt(),
+                            e.getDurationMin(),
+                            e.getAttemptsLimit(),
+                            score
+                    );
+                })
+                .toList();
+
+        return ApiResponse.ok(items);
+    }
+
+
 }

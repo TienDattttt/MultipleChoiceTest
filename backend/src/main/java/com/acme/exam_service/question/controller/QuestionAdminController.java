@@ -14,9 +14,8 @@ public class QuestionAdminController {
 
     private final QuestionService service;
 
-    // LIST + FILTER + PAGING
     @GetMapping
-    public ApiResponse<Page<QuestionListItem>> list(
+    public ApiResponse<?> list(
             @RequestParam(required = false) Integer courseId,
             @RequestParam(required = false) Integer chapterId,
             @RequestParam(required = false) Integer sectionId,
@@ -25,31 +24,27 @@ public class QuestionAdminController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size
     ) {
-        return new ApiResponse<>(service.list(courseId, chapterId, sectionId, difficulty, keyword, page, size));
+        return ApiResponse.ok(service.list(courseId, chapterId, sectionId, difficulty, keyword, page, size));
     }
 
-    // GET DETAIL
     @GetMapping("/{id}")
-    public ApiResponse<QuestionResponse> get(@PathVariable Integer id) {
-        return new ApiResponse<>(service.get(id));
+    public ApiResponse<?> get(@PathVariable Integer id) {
+        return ApiResponse.ok(service.get(id));
     }
 
-    // CREATE
     @PostMapping
-    public ApiResponse<QuestionResponse> create(@RequestBody QuestionCreateRequest req) {
-        return new ApiResponse<>(service.create(req));
+    public ApiResponse<?> create(@RequestBody QuestionCreateRequest req) {
+        return ApiResponse.ok("Question created", service.create(req));
     }
 
-    // UPDATE (replace answers)
     @PutMapping("/{id}")
-    public ApiResponse<QuestionResponse> update(@PathVariable Integer id, @RequestBody QuestionUpdateRequest req) {
-        return new ApiResponse<>(service.update(id, req));
+    public ApiResponse<?> update(@PathVariable Integer id, @RequestBody QuestionUpdateRequest req) {
+        return ApiResponse.ok("Question updated", service.update(id, req));
     }
 
-    // DELETE (safe)
     @DeleteMapping("/{id}")
-    public ApiResponse<String> delete(@PathVariable Integer id) {
+    public ApiResponse<?> delete(@PathVariable Integer id) {
         service.delete(id);
-        return new ApiResponse<>("DELETED");
+        return ApiResponse.ok("Question deleted", "DELETED");
     }
 }

@@ -23,11 +23,12 @@ public class QuestionImportController {
      * Optional: createdByUserId (nếu bạn muốn ghi nhận GV tạo)
      */
     @PostMapping(path = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<ImportReport> importCsv(
+    public ApiResponse<?> importCsv(
             @RequestPart("file") MultipartFile file,
             @RequestParam(value="createdByUserId", required=false) Integer createdByUserId
     ) {
         var report = importService.importCsv(file, createdByUserId);
-        return new ApiResponse<>(report);
+        return ApiResponse.ok("Import success", report);
     }
 }
+

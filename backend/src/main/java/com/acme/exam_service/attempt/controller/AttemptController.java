@@ -20,41 +20,48 @@ public class AttemptController {
     // Start attempt
     @PreAuthorize("hasRole('STUDENT')")
     @PostMapping("/start")
-    public ApiResponse<StartAttemptResponse> start(@RequestBody StartAttemptRequest req) {
+    public ApiResponse<?> start(@RequestBody StartAttemptRequest req) {
         Integer me = SecurityUtils.currentUserId();       // 👈 lấy user từ token
-        var res = service.startAttempt(req.examId(), me); // bỏ userId từ body
-        return new ApiResponse<>(res);
+        var res = service.startAttempt(req.examId(), me); // không nhận userId từ body nữa
+        return ApiResponse.ok("Attempt started", res);
     }
 
     // Save one answer (autosave)
     @PreAuthorize("hasRole('STUDENT')")
     @PutMapping("/{attemptId}/answers")
-    public ApiResponse<String> save(
+    public ApiResponse<?> save(
             @PathVariable Integer attemptId,
             @RequestBody SaveAnswerRequest body) {
-        service.saveAnswerOwned(attemptId, body);         // đã kiểm tra ownership trong service
-        return new ApiResponse<>("SAVED");
+        try {
+            service.saveAnswerOwned(attemptId, body);
+            return ApiResponse.ok("Answer saved", "SAVED");
+        } catch (IllegalArgumentException e) {
+            return ApiResponse.error(e.getMessage());
+        }
+
     }
 
+    // Get attempt detail
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/{attemptId}")
-    public ApiResponse<AttemptDetailResponse> detail(@PathVariable Integer attemptId) {
-        return new ApiResponse<>(service.getAttemptDetailOwned(attemptId));
+    public ApiResponse<?> detail(@PathVariable Integer attemptId) {
+        return ApiResponse.ok(service.getAttemptDetailOwned(attemptId));
     }
 
-    // 4) Nộp bài & chấm điểm (gọi SP)
+    // Submit and grade
     @PreAuthorize("hasRole('STUDENT')")
     @PostMapping("/{attemptId}/submit")
-    public ApiResponse<String> submit(@PathVariable Integer attemptId) {
-        service.lockIfTimeOverAndSubmitOwned(attemptId, false); // kiểm tra thời gian + quyền sở hữu
+    public ApiResponse<?> submit(@PathVariable Integer attemptId) {
+        service.lockIfTimeOverAndSubmitOwned(attemptId, false);
         sp.execSubmitAndGrade(attemptId);
-        return new ApiResponse<>("SUBMITTED");
+        return ApiResponse.ok("Submitted", "SUBMITTED");
     }
 
-    // thời gian còn lại
+    // Remaining time
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/{attemptId}/remaining")
-    public ApiResponse<RemainingTimeDto> remaining(@PathVariable Integer attemptId) {
-        return new ApiResponse<>(service.getRemainingTimeOwned(attemptId));
+    public ApiResponse<?> remaining(@PathVariable Integer attemptId) {
+        return ApiResponse.ok(service.getRemainingTimeOwned(attemptId));
     }
 }
+

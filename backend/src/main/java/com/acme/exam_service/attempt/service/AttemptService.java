@@ -55,6 +55,17 @@ public class AttemptService {
      */
     @Transactional
     public StartAttemptResponse startAttempt(Integer examId, Integer currentUserId) {
+        var exam = examRepo.findById(examId)
+                .orElseThrow(() -> new IllegalArgumentException("Exam not found"));
+
+        Instant now = Instant.now();
+        if (now.isBefore(exam.getStartAt())) {
+            throw new IllegalStateException("Kỳ thi chưa bắt đầu.");
+        }
+        if (now.isAfter(exam.getEndAt())) {
+            throw new IllegalStateException("Kỳ thi đã kết thúc.");
+        }
+
         var existing = attemptRepo.findByExam_IdAndUser_Id(examId, currentUserId);
         if (existing.isPresent()) {
             var at = existing.get();
@@ -66,8 +77,6 @@ public class AttemptService {
             return toDto(at);
         }
 
-        var exam = examRepo.findById(examId)
-                .orElseThrow(() -> new IllegalArgumentException("Exam not found"));
         var user = userRepo.findById(currentUserId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
@@ -132,15 +141,26 @@ public class AttemptService {
             ));
         }
 
+        // === NEW: build thêm thông tin cho Flutter ===
+        int total = items.size();
+        long answered = items.stream().filter(x -> x.selectedAnswerId() != null).count();
+
+        var remaining = computeRemaining(at);
+
+
         return new AttemptDetailResponse(
                 at.getId(),
                 at.getExam().getId(),
-                at.getPaper().getId(),
-                at.getStatus(),
+                at.getExam().getTitle(),
+                at.getExam().getDurationMin(),
+                total,
+                (int) answered,
+                remaining.secondsLeft(),
                 at.getStartedAt(),
                 items
         );
     }
+
 
     // ===== Remaining time (only owner) =====
     @Transactional(readOnly = true)

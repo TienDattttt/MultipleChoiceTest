@@ -8,22 +8,22 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/stats")
 public class StatsController {
+
     private final StatsService service;
     public StatsController(StatsService service) { this.service = service; }
 
     @GetMapping("/exams/{examId}/basic")
-    public ApiResponse<ExamStatsDto> basic(@PathVariable int examId) {
-        return new ApiResponse<>(service.getBasic(examId));
+    public ApiResponse<?> basic(@PathVariable int examId) {
+        return ApiResponse.ok(service.getBasic(examId));
     }
 
     @GetMapping("/exams/{examId}/candidates")
-    public ApiResponse<java.util.List<java.util.Map<String,Object>>> list(
+    public ApiResponse<?> list(
             @PathVariable int examId,
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size) {
-        var data = service.serviceListCandidates(examId, keyword, page, size);
-        return new ApiResponse<>(data);
+        return ApiResponse.ok(service.serviceListCandidates(examId, keyword, page, size));
     }
 }
 

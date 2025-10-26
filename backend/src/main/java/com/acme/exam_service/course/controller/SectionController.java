@@ -16,22 +16,23 @@ public class SectionController {
 
     @GetMapping
     public ApiResponse<List<SectionDto>> listByChapter(@RequestParam Integer chapterId) {
-        return new ApiResponse<>(service.listByChapter(chapterId));
+        return ApiResponse.ok(service.listByChapter(chapterId));
     }
 
     @PostMapping
     public ApiResponse<SectionDto> create(@RequestBody SectionUpsertRequest req) {
-        return new ApiResponse<>(service.create(req));
+        return ApiResponse.ok("Section created", service.create(req));
     }
 
     @PutMapping("/{id}")
     public ApiResponse<SectionDto> update(@PathVariable Integer id, @RequestBody SectionUpsertRequest req) {
-        return new ApiResponse<>(service.update(id, req));
+        return ApiResponse.ok("Section updated", service.update(id, req));
     }
 
     @DeleteMapping("/{id}")
     public ApiResponse<String> delete(@PathVariable Integer id) {
         service.delete(id);
-        return new ApiResponse<>("DELETED");
+        return ApiResponse.ok("Section deleted", "DELETED");
     }
 }
+

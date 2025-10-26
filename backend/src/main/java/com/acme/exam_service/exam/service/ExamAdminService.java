@@ -56,6 +56,7 @@ public class ExamAdminService {
     @Autowired private ExamAssignmentRepository assignRepo;
     @Autowired private AttemptRepository attemptRepo;
     @Autowired private ExamBlueprintRepository blueprintRepo;
+
     /* ===========================
        Tạo/generate đề (GIỮ NGUYÊN)
        =========================== */
@@ -84,7 +85,8 @@ public class ExamAdminService {
                 e.getStartAt(),
                 e.getEndAt(),
                 e.getDurationMin(),
-                e.getAttemptsLimit()
+                e.getAttemptsLimit(),
+                null
         ));
     }
 

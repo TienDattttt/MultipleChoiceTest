@@ -1,5 +1,6 @@
 package com.acme.exam_service.exam.dto;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 public record ExamListItem(
@@ -9,5 +10,6 @@ public record ExamListItem(
         Instant startAt,
         Instant endAt,
         Integer durationMin,
-        Integer attemptsLimit
+        Integer attemptsLimit,
+        BigDecimal score
 ) {}

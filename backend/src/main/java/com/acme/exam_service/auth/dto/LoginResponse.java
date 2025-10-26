@@ -5,5 +5,6 @@ public record LoginResponse(
         long expiresIn,
         Integer userId,
         String fullName,
-        String role
+        String role,
+        String email
 ) {}

@@ -14,25 +14,26 @@ public class CourseController {
     private final CourseService service;
 
     @GetMapping
-    public ApiResponse<Page<CourseDto>> list(@RequestParam(required=false) String keyword,
-                                             @RequestParam(defaultValue="1") int page,
-                                             @RequestParam(defaultValue="20") int size) {
-        return new ApiResponse<>(service.list(keyword, page, size));
+    public ApiResponse<?> list(@RequestParam(required = false) String keyword,
+                               @RequestParam(defaultValue = "1") int page,
+                               @RequestParam(defaultValue = "20") int size) {
+        return ApiResponse.ok(service.list(keyword, page, size));
     }
 
     @PostMapping
-    public ApiResponse<CourseDto> create(@RequestBody CourseUpsertRequest req) {
-        return new ApiResponse<>(service.create(req));
+    public ApiResponse<?> create(@RequestBody CourseUpsertRequest req) {
+        return ApiResponse.ok("Course created", service.create(req));
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<CourseDto> update(@PathVariable Integer id, @RequestBody CourseUpsertRequest req) {
-        return new ApiResponse<>(service.update(id, req));
+    public ApiResponse<?> update(@PathVariable Integer id, @RequestBody CourseUpsertRequest req) {
+        return ApiResponse.ok("Course updated", service.update(id, req));
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse<String> delete(@PathVariable Integer id) {
+    public ApiResponse<?> delete(@PathVariable Integer id) {
         service.delete(id);
-        return new ApiResponse<>("DELETED");
+        return ApiResponse.ok("Course deleted", "DELETED");
     }
 }
+

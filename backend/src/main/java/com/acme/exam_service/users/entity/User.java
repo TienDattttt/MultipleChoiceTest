@@ -61,7 +61,13 @@ public class User {
     @OneToMany(mappedBy = "user")
     private Set<Attempt> attempts = new LinkedHashSet<>();
 
+    /** ✅ Chuẩn Many-to-Many với bảng class_members */
     @ManyToMany
+    @JoinTable(
+            name = "class_members",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "class_id")
+    )
     private Set<Class> classes = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "createdBy")
@@ -70,4 +76,8 @@ public class User {
     @OneToMany(mappedBy = "createdBy")
     private Set<Question> questions = new LinkedHashSet<>();
 
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = Instant.now();
+    }
 }

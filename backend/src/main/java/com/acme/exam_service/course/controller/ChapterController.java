@@ -15,23 +15,24 @@ public class ChapterController {
     private final ChapterService service;
 
     @GetMapping
-    public ApiResponse<List<ChapterDto>> listByCourse(@RequestParam Integer courseId) {
-        return new ApiResponse<>(service.listByCourse(courseId));
+    public ApiResponse<?> listByCourse(@RequestParam Integer courseId) {
+        return ApiResponse.ok(service.listByCourse(courseId));
     }
 
     @PostMapping
-    public ApiResponse<ChapterDto> create(@RequestBody ChapterUpsertRequest req) {
-        return new ApiResponse<>(service.create(req));
+    public ApiResponse<?> create(@RequestBody ChapterUpsertRequest req) {
+        return ApiResponse.ok("Chapter created", service.create(req));
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<ChapterDto> update(@PathVariable Integer id, @RequestBody ChapterUpsertRequest req) {
-        return new ApiResponse<>(service.update(id, req));
+    public ApiResponse<?> update(@PathVariable Integer id, @RequestBody ChapterUpsertRequest req) {
+        return ApiResponse.ok("Chapter updated", service.update(id, req));
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse<String> delete(@PathVariable Integer id) {
+    public ApiResponse<?> delete(@PathVariable Integer id) {
         service.delete(id);
-        return new ApiResponse<>("DELETED");
+        return ApiResponse.ok("Chapter deleted", "DELETED");
     }
 }
+

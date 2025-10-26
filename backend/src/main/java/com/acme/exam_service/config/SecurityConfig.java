@@ -41,7 +41,9 @@ public class SecurityConfig {
                 ).permitAll()
 
                 // student
-                .requestMatchers("/api/attempts/**").hasRole("STUDENT")
+                .requestMatchers("/api/attempts/**",
+                        "/api/exams/my"
+                        ).hasRole("STUDENT")
 
                 // teacher/admin
                 .requestMatchers(

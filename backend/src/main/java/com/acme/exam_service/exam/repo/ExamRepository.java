@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+
 public interface ExamRepository extends JpaRepository<Exam, Integer> {
     @Query("""
       select e from Exam e
@@ -19,4 +21,12 @@ public interface ExamRepository extends JpaRepository<Exam, Integer> {
                       java.time.Instant fromTs,
                       java.time.Instant toTs,
                       Pageable pageable);
+
+    @Query("""
+    select e from Exam e
+    join ExamAssignment a on a.exam.id = e.id
+    where a.id.classId = :classId
+""")
+    List<Exam> findExamsAssignedToClass(Integer classId);
+
 }
